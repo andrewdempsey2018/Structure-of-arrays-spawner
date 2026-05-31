@@ -110,42 +110,6 @@ load_palettes:
 
   WAIT_VBLANK
 
-  ; ----------------------------------- ;
-  ; init enemies
-
-  ldx #$00
-InitEnemies:
-  lda start_x, x
-  sta enemy_x, x
-  lda start_y, x
-  sta enemy_y, x
-  lda start_type, x
-  sta enemy_type, x
-
-  lda #%10000000
-  sta enemy_flags, x
-  inx
-  cpx #$05
-  bne InitEnemies
-
-  ;;
-  ldx #$01
-  lda enemy_flags, x
-  ora #ENEMY_MOVING_RIGHT
-  sta enemy_flags, x
-
-  ldx #$03
-  lda enemy_flags, x
-  ora #ENEMY_MOVING_LEFT
-  sta enemy_flags, x
-
-  ldx #$04
-  lda enemy_flags, x
-  ora #ENEMY_MOVING_RIGHT
-  sta enemy_flags, x
-  ;;
-  ; ----------------------------------- ;
-
 mainloop:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -192,11 +156,3 @@ palettes:
   .byte $0f,$01,$21,$31
   .byte $0f,$06,$16,$26
   .byte $0f,$09,$19,$29
-
-; temp data
-start_type:
-  .byte $00,$00,$00,$00,$00
-start_x:
-  .byte $10,$40,$80,$B0,$E0
-start_y:
-  .byte $00,$08,$10,$18,$20

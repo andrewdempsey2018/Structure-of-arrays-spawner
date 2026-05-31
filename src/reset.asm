@@ -27,7 +27,7 @@
   sta enemy_spawn_number
   sta enemy_spawn_index
 
-  lda #$02
+  lda #$05
   sta enemy_spawn_wait
 
   lda #$00

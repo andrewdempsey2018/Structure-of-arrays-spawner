@@ -289,9 +289,12 @@ dont_reset_spawn_num:
 
 .segment "RODATA"
 
-enemy_move_down_frames_table:
+; --------------------------------------------------
+; Tiles and attributes that make up enemy sprites/animation frames
 ; tiletl,attribtl,tiletr,attribtr,tilebl,attribbl,tilebr,attribbr,
 ; padding,padding,padding,padding,padding,padding,padding,padding
+; --------------------------------------------------
+enemy_move_down_frames_table:
   .byte $02,$00,$03,$00,$12,$00,$13,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
   .byte $04,$00,$05,$00,$14,$00,$15,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
   .byte $02,$01,$03,$01,$12,$01,$13,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
@@ -299,8 +302,6 @@ enemy_move_down_frames_table:
   .byte $04,$03,$05,$03,$14,$03,$15,$03,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
 
 enemy_move_left_frames_table:
-; tiletl,attribtl,tiletr,attribtr,tilebl,attribbl,tilebr,attribbr,
-; padding,padding,padding,padding,padding,padding,padding,padding
   .byte $22,$00,$23,$00,$32,$00,$33,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
   .byte $24,$00,$25,$00,$34,$00,$35,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
   .byte $22,$01,$23,$01,$32,$01,$33,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
@@ -308,8 +309,6 @@ enemy_move_left_frames_table:
   .byte $24,$03,$25,$03,$34,$03,$35,$03,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
 
 enemy_move_right_frames_table:
-; tiletl,attribtl,tiletr,attribtr,tilebl,attribbl,tilebr,attribbr,
-; padding,padding,padding,padding,padding,padding,padding,padding
   .byte $42,$00,$43,$00,$52,$00,$53,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
   .byte $44,$00,$45,$00,$54,$00,$55,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
   .byte $42,$01,$43,$01,$52,$01,$53,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
@@ -344,6 +343,10 @@ explosion_frame_3_table:
   .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
   .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
 
+; --------------------------------------------------
+; address of each frame that will be used in
+; conjunction with the frame number variable
+; --------------------------------------------------
 frames_lo_table:
   .byte <explosion_frame_0_table,<explosion_frame_1_table,<explosion_frame_2_table,<explosion_frame_3_table,<enemy_move_down_frames_table,<enemy_move_left_frames_table,<enemy_move_right_frames_table
 
@@ -355,8 +358,6 @@ frames_hi_table:
 ; spawn_enemy_wait_table - how long to wait until next enemy spawns. Counts down -1 each time zero page 'timer' hits 0.
 ; spawn_enemy_xpos_table, spawn_enemy_ypos_table - x and y positions of enemy when it is first spawned
 ; spawn_enemy_type_table - the specific enemy type to spawn
-; 
-; 
 ; --------------------------------------------------
 spawn_enemy_wait_table:
   .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
