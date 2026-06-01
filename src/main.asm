@@ -20,7 +20,7 @@ scratch_03_lo = scratch_03
 scratch_03_hi = scratch_03+1
 
 ; --------------------------------------------------
-; xxxxxxxxxxx
+; timer - counts from 30-0 in NMI. General purpose use for triggering events
 ; --------------------------------------------------
 timer: .res 1
 
@@ -53,13 +53,19 @@ timer: .res 1
   sta timer
 timer_zero:
 
-  ;This is the PPU clean up section, so rendering the next frame starts properly.
-  lda #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+; --------------------------------------------------
+; This is the PPU clean up section, so rendering the next frame starts properly.
+; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+; enable sprites, enable background, no clipping on left side
+; --------------------------------------------------
+  lda #%10010000
   sta PPUCTRL
-  lda #%00011110   ; enable sprites, enable background, no clipping on left side
+  lda #%00011110
   sta PPUMASK
 
-  ;;
+; --------------------------------------------------
+; Loop
+; --------------------------------------------------
   lda #$00
   sta sleeping
 
