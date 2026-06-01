@@ -33,12 +33,14 @@ enemy_flags: .res NUMBER_OF_ENEMIES
 ; enemy_spawn_number - the enemy number that will be spawned
 ; enemy_spawn_index - there are multiple tables containing data that will be used when spawing an enemy, this is the index into those tables
 ; enemy_spawn_wait - used in conjunction with the timer to delay when the next enemy will be spawned.
+; enemy_spawn_script - used in conjunction with spawn_enemy_qty_wait_table
 ; --------------------------------------------------
 current_enemy: .res 1
 enemy_frame_number: .res 1
 enemy_spawn_number: .res 1
 enemy_spawn_index: .res 1
 enemy_spawn_wait: .res 1
+enemy_spawn_script: .res 1
 
 .segment "BSS"
 
@@ -260,8 +262,8 @@ dont_reset_spawn_num:
 ; --------------------------------------------------
 ; how much time to wait before next enemy spawns
 ; --------------------------------------------------
-  lda spawn_enemy_wait_table, y
-  sta enemy_spawn_wait
+  ;lda spawn_enemy_wait_table, y
+  ;sta enemy_spawn_wait
 
 ; --------------------------------------------------
 ; set bit 7 of enemy flag - enemy is now alive
@@ -355,30 +357,46 @@ frames_hi_table:
 
 ; --------------------------------------------------
 ; Enemy data tables
-; spawn_enemy_wait_table - how long to wait until next enemy spawns. Counts down -1 each time zero page 'timer' hits 0.
 ; spawn_enemy_xpos_table, spawn_enemy_ypos_table - x and y positions of enemy when it is first spawned
 ; spawn_enemy_type_table - the specific enemy type to spawn
+; spawn_enemy_qty_wait_table - first byte=quantity of enemies to spawn, second byte=time to wait for next spawn
 ; --------------------------------------------------
-spawn_enemy_wait_table:
-  .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-  .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-  .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-  .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-
 spawn_enemy_xpos_table:
-  .byte $10,$20,$30,$40,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
+  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
+  .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
+  .byte $30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30
+  .byte $40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40
 
 spawn_enemy_ypos_table:
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
-  .byte $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
+  .byte $10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30
+  .byte $10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30
+  .byte $10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30
+  .byte $10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30,$10,$30
 
 spawn_enemy_type_table:
   .byte $02,$01,$02,$03,$02,$02,$02,$02,$02,$02,$02,$02,$00,$02,$02,$02
   .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
   .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
   .byte $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
+
+spawn_enemy_qty_wait_table:
+  .byte $05,$09
+  .byte $04,$09
+  .byte $03,$09
+  .byte $02,$09
+  .byte $01,$09
+  .byte $02,$09
+  .byte $03,$09
+  .byte $04,$09
+  .byte $05,$09
+  .byte $01,$01
+  .byte $01,$01
+  .byte $01,$01
+  .byte $01,$01
+  .byte $02,$05
+  .byte $02,$05
+  .byte $02,$05
+  .byte $02,$05
+  .byte $02,$05
+  .byte $02,$05
+  .byte $02,$05

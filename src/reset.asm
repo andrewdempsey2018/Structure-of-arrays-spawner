@@ -26,6 +26,7 @@
   lda #$FF
   sta enemy_spawn_number
   sta enemy_spawn_index
+  sta enemy_spawn_script
 
   lda #$05
   sta enemy_spawn_wait

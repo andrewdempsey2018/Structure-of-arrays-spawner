@@ -112,24 +112,56 @@ load_palettes:
 
 mainloop:
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; --------------------------------------------------
+; Timer counts down during NMI if it is >30
+; When timer=0 reset timer to 30
+; --------------------------------------------------
   lda timer
-  bne not_done
+  bne still_counting
   dec enemy_spawn_wait
   lda #30
   sta timer
-not_done:
+still_counting:
 
+; --------------------------------------------------
+; Spawing enemies
+; Begin spawn procedure when enemy_spawn_wait=0
+; enemy_spawn_script needs to be multiplied by two as it works with spawn_enemy_qty_wait_table which is structured in bytes of 2
+; set x to the number of enemies to spawn
+; set enemy_spawn_wait to the time desired to wait for next spawn
+; --------------------------------------------------
   lda enemy_spawn_wait
   bne dont_spawn
-  jsr SpawnEnemy
-dont_spawn:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+  inc enemy_spawn_script
+  lda enemy_spawn_script
+  asl a
+  tay
+  lda spawn_enemy_qty_wait_table, y
+  tax
+
+  iny
+  lda spawn_enemy_qty_wait_table, y
+  sta enemy_spawn_wait
+
+spawn:
+  jsr SpawnEnemy
+  dex
+  cpx #$00
+  bne spawn
+
+dont_spawn:
+
+; --------------------------------------------------
+; process enemies
+; --------------------------------------------------
   jsr ProcessEnemeies
 
 done:
-  ;loop
+
+; --------------------------------------------------
+; Game loop
+; --------------------------------------------------
   inc sleeping
 sleep:
   lda sleeping
@@ -145,14 +177,16 @@ sleep:
 .incbin "graphics.chr"
 
 .segment "RODATA"
-
+; --------------------------------------------------
+; Palettes - background, sprites
+; --------------------------------------------------
 palettes:
-  .byte $0f,$00,$10,$30 ; background
+  .byte $0f,$00,$10,$30
   .byte $0f,$01,$21,$31
   .byte $0f,$06,$16,$26
   .byte $0f,$09,$19,$29
 
-  .byte $0f,$00,$10,$30 ; sprite
+  .byte $0f,$00,$10,$30
   .byte $0f,$01,$21,$31
   .byte $0f,$06,$16,$26
   .byte $0f,$09,$19,$29
