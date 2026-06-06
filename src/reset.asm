@@ -1,7 +1,6 @@
 .segment "ZEROPAGE"
 
 .segment "CODE"
-.export reset_handler
 .proc reset_handler
   sei
   cld
@@ -38,8 +37,10 @@ ClearEnemyData:
   sta enemy_y, x
   sta enemy_type, x
   sta enemy_flags, x
+  sta enemy_path, x
+  sta enemy_path_index, x
   inx
-  cpx #$05
+  cpx #NUMBER_OF_ENEMIES
   bne ClearEnemyData
 
   WAIT_VBLANK

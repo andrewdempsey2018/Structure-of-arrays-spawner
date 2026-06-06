@@ -1,6 +1,6 @@
+.include "header.inc"
 .include "constants.inc"
 .include "macros.asm"
-.include "header.inc"
 .include "reset.asm"
 .include "controllers.asm"
 .include "enemies.asm"
@@ -25,6 +25,10 @@ scratch_03_hi = scratch_03+1
 timer: .res 1
 
 .segment "BSS"
+; RAM variables will be declared here
+
+.segment "RODATA"
+.include "../data/palettes.asm"
 
 .segment "CODE"
 
@@ -181,18 +185,3 @@ sleep:
 
 .segment "CHR"
 .incbin "graphics.chr"
-
-.segment "RODATA"
-; --------------------------------------------------
-; Palettes - background, sprites
-; --------------------------------------------------
-palettes:
-  .byte $0f,$00,$10,$30
-  .byte $0f,$01,$21,$31
-  .byte $0f,$06,$16,$26
-  .byte $0f,$09,$19,$29
-
-  .byte $0f,$00,$10,$30
-  .byte $0f,$01,$21,$31
-  .byte $0f,$06,$16,$26
-  .byte $0f,$09,$19,$29

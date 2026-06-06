@@ -20,11 +20,18 @@ ENEMY_MOVING_LEFT = %00000001
 
 ; --------------------------------------------------
 ; enemy SoA
+; enemy_x, enemy_y position coordinates of enemy
+; enemy_type type of enemy sprite
+; enemy_flags currently holds alive or dead, use for other attributes as needed
+; enemy_path the flight path the enemy flies when it is alive
+; enemy_path_index the flight path is held in data tables, this is the index into those tables
 ; --------------------------------------------------
 enemy_x: .res NUMBER_OF_ENEMIES
 enemy_y: .res NUMBER_OF_ENEMIES
 enemy_type: .res NUMBER_OF_ENEMIES
 enemy_flags: .res NUMBER_OF_ENEMIES
+enemy_path: .res NUMBER_OF_ENEMIES
+enemy_path_index: .res NUMBER_OF_ENEMIES
 
 ; --------------------------------------------------
 ; enemy SoA
@@ -43,6 +50,9 @@ enemy_spawn_wait: .res 1
 enemy_spawn_script: .res 1
 
 .segment "BSS"
+
+.segment "RODATA"
+.include "../data/enemy_data.asm"
 
 .segment "CODE"
 
@@ -288,199 +298,3 @@ dont_reset_spawn_num:
   RESTORE_REGISTERS
   rts
 .endproc
-
-.segment "RODATA"
-
-; --------------------------------------------------
-; Tiles and attributes that make up enemy sprites/animation frames
-; tiletl,attribtl,tiletr,attribtr,tilebl,attribbl,tilebr,attribbr,
-; padding,padding,padding,padding,padding,padding,padding,padding
-; --------------------------------------------------
-enemy_move_down_frames_table:
-  .byte $02,$00,$03,$00,$12,$00,$13,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $04,$00,$05,$00,$14,$00,$15,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $02,$01,$03,$01,$12,$01,$13,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $04,$02,$05,$02,$14,$02,$15,$02,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $04,$03,$05,$03,$14,$03,$15,$03,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-enemy_move_left_frames_table:
-  .byte $22,$00,$23,$00,$32,$00,$33,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $24,$00,$25,$00,$34,$00,$35,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $22,$01,$23,$01,$32,$01,$33,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $24,$02,$25,$02,$34,$02,$35,$02,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $24,$03,$25,$03,$34,$03,$35,$03,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-enemy_move_right_frames_table:
-  .byte $42,$00,$43,$00,$52,$00,$53,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $44,$00,$45,$00,$54,$00,$55,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $42,$01,$43,$01,$52,$01,$53,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $44,$02,$45,$02,$54,$02,$55,$02,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $44,$03,$45,$03,$54,$03,$55,$03,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-explosion_frame_0_table:
-  .byte $06,$00,$07,$00,$16,$00,$17,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $06,$00,$07,$00,$16,$00,$17,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $06,$00,$07,$00,$16,$00,$17,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $06,$00,$07,$00,$16,$00,$17,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $06,$00,$07,$00,$16,$00,$17,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-explosion_frame_1_table:
-  .byte $26,$00,$27,$00,$36,$00,$37,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $26,$00,$27,$00,$36,$00,$37,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $26,$00,$27,$00,$36,$00,$37,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $26,$00,$27,$00,$36,$00,$37,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $26,$00,$27,$00,$36,$00,$37,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-explosion_frame_2_table:
-  .byte $46,$00,$47,$00,$56,$00,$57,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $46,$00,$47,$00,$56,$00,$57,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $46,$00,$47,$00,$56,$00,$57,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $46,$00,$47,$00,$56,$00,$57,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $46,$00,$47,$00,$56,$00,$57,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-explosion_frame_3_table:
-  .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 0
-  .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 1
-  .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 2
-  .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 3
-  .byte $66,$00,$67,$00,$76,$00,$77,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; type 4
-
-; --------------------------------------------------
-; address of each frame that will be used in
-; conjunction with the frame number variable
-; --------------------------------------------------
-frames_lo_table:
-  .byte <explosion_frame_0_table,<explosion_frame_1_table,<explosion_frame_2_table,<explosion_frame_3_table,<enemy_move_down_frames_table,<enemy_move_left_frames_table,<enemy_move_right_frames_table
-
-frames_hi_table:
-  .byte >explosion_frame_0_table,>explosion_frame_1_table,>explosion_frame_2_table,>explosion_frame_3_table,>enemy_move_down_frames_table,>enemy_move_left_frames_table,>enemy_move_right_frames_table
-
-; --------------------------------------------------
-; Enemy data tables
-; spawn_enemy_xpos_table, spawn_enemy_ypos_table - x and y positions of enemy when it is first spawned
-; spawn_enemy_type_table - the specific enemy type to spawn
-; spawn_enemy_qty_wait_table - first byte=quantity of enemies to spawn, second byte=time to wait for next spawn
-; --------------------------------------------------
-spawn_enemy_xpos_table:
-  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
-  .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
-  .byte $30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30
-  .byte $40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40
-  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
-  .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
-  .byte $30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30
-  .byte $40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40
-  .byte $50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50
-  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
-  .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
-  .byte $30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30
-  .byte $40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40
-  .byte $50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50
-  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
-  .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
-
-spawn_enemy_ypos_table:
-  .byte $00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
-  .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
-  .byte $30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30
-  .byte $40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40
-  .byte $00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
-  .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
-  .byte $30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30
-  .byte $40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40
-  .byte $50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50
-  .byte $00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
-  .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
-  .byte $30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30
-  .byte $40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40
-  .byte $50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50
-  .byte $00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
-  .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
-
-spawn_enemy_type_table:
-  .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
-  .byte $01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01
-  .byte $02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02
-  .byte $03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03
-  .byte $04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04
-  .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
-  .byte $01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01
-  .byte $02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02
-  .byte $03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03
-  .byte $04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04
-  .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
-  .byte $01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01
-  .byte $02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02
-  .byte $03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03
-  .byte $04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04
-  .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
-
-spawn_enemy_qty_wait_table: ; max spawn x256 enemies
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
-  .byte $05,$10
