@@ -135,7 +135,6 @@ mainloop:
 ; --------------------------------------------------
 ; Spawing enemies
 ; Begin spawn procedure when enemy_spawn_wait=0
-; enemy_spawn_script needs to be multiplied by two as it works with spawn_enemy_qty_wait_table which is structured in bytes of 2
 ; set x to the number of enemies to spawn
 ; set enemy_spawn_wait to the time desired to wait for next spawn
 ; --------------------------------------------------
@@ -144,13 +143,11 @@ mainloop:
 
   inc enemy_spawn_script
   lda enemy_spawn_script
-  asl a
   tay
-  lda spawn_enemy_qty_wait_table, y
+  lda spawn_enemy_qty_table, y
   tax
 
-  iny
-  lda spawn_enemy_qty_wait_table, y
+  lda spawn_enemy_wait_table, y
   sta enemy_spawn_wait
 
 spawn:
