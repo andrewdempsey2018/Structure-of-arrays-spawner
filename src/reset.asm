@@ -33,8 +33,10 @@
   lda #$00
   ldx #$00
 ClearEnemyData:
-  sta enemy_x, x
-  sta enemy_y, x
+  sta enemy_x_hi, x
+  sta enemy_x_lo, x
+  sta enemy_y_hi, x
+  sta enemy_y_hi, x
   sta enemy_type, x
   sta enemy_flags, x
   sta enemy_path, x

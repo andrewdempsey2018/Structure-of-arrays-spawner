@@ -67,9 +67,10 @@ frames_hi_table:
 ; spawn_enemy_xpos_table, spawn_enemy_ypos_table - x and y positions of enemy when it is first spawned
 ; spawn_enemy_type_table - the specific enemy type to spawn
 ; spawn_enemy_qty_wait_table - first byte=quantity of enemies to spawn, second byte=time to wait for next spawn
+; spawn_enemy_path_table - the flight path the enemy flies when it is alive
 ; --------------------------------------------------
 spawn_enemy_xpos_table:
-  .byte $10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
+  .byte $50,$CE,$80,$80,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10
   .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
   .byte $30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30
   .byte $40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40
@@ -87,7 +88,7 @@ spawn_enemy_xpos_table:
   .byte $20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20,$30,$40,$50,$10,$20
 
 spawn_enemy_ypos_table:
-  .byte $00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
+  .byte $00,$00,$00,$00,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00
   .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
   .byte $30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30
   .byte $40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40
@@ -105,7 +106,7 @@ spawn_enemy_ypos_table:
   .byte $20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20,$30,$40,$50,$00,$20
 
 spawn_enemy_type_table:
-  .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
+  .byte $01,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
   .byte $01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01
   .byte $02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02
   .byte $03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03
@@ -122,8 +123,26 @@ spawn_enemy_type_table:
   .byte $04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04
   .byte $00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00,$01,$02,$03,$04,$00
 
+spawn_enemy_path_table:
+  .byte $02,$03,$00,$00,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+  .byte $00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01
+
 spawn_enemy_qty_wait_table: ; max spawn x256 enemies
-  .byte $01,$10
+  .byte $01,$01
   .byte $01,$10
   .byte $01,$10
   .byte $01,$10
@@ -194,20 +213,46 @@ spawn_enemy_qty_wait_table: ; max spawn x256 enemies
 
 
 ;;;;;;
-
+;;;;;;;;;;;;; clean this area up
 ; path 0 = down left
 ; path 1 = down right
+; path 2 = sinewave type a
+; path 2 = sinewave type b
 ; $80 reserved -> resets table index
+
+;;;;;
+
+; Valid values/speeds are:
+; $00 for stop
+; $80 is reserved and used for resetting the table index. This only applies to tables containing x speeds
+; move right $01-$1F (1 pixel per frame), $20-$7F (sub pixel movement)
+; move left $FF-$E1 (1 pixel per frame), $E0-$81 (sub pixel movement)
+; move down $01-$1F (1 pixel per frame), $20-$7F (sub pixel movement)
+; move up $FF-$E1 (1 pixel per frame), $E0-$81 (sub pixel movement)
+
 enemy_path_0_x_table:
-  .byte $D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$80
+  .byte $D0,$D0,$D0,$D0,$D0,$D0,$80,$02,$02,$02,$00,$00,$00,$00,$00,$00
 enemy_path_0_y_table:
   .byte $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
 enemy_path_1_x_table:
-  .byte $60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$80
+  .byte $60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60,$60
 enemy_path_1_y_table:
+  .byte $02,$02,$02,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
+enemy_path_2_x_table:
+  .byte $02,$01,$00,$FF,$FE,$00,$80
+enemy_path_2_y_table:
+  .byte $01,$01,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
+
+enemy_path_3_x_table:
+  .byte $FF,$FF,$00,$01,$01,$00,$80
+enemy_path_3_y_table:
   .byte $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
 
-enemy_path_data_lo:
-  .byte <enemy_path_0_x_table,<enemy_path_1_x_table
-enemy_path_data_hi:
-  .byte >enemy_path_0_x_table,>enemy_path_1_x_table
+enemy_path_data_x_lo_table:
+  .byte <enemy_path_0_x_table,<enemy_path_1_x_table,<enemy_path_2_x_table,<enemy_path_3_x_table
+enemy_path_data_x_hi_table:
+  .byte >enemy_path_0_x_table,>enemy_path_1_x_table,>enemy_path_2_x_table,>enemy_path_3_x_table
+enemy_path_data_y_lo_table:
+  .byte <enemy_path_0_y_table,<enemy_path_1_y_table,<enemy_path_2_y_table,<enemy_path_3_y_table
+enemy_path_data_y_hi_table:
+  .byte >enemy_path_0_y_table,>enemy_path_1_y_table,>enemy_path_2_y_table,>enemy_path_3_y_table

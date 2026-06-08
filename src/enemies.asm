@@ -26,8 +26,10 @@ ENEMY_MOVING_LEFT = %00000001
 ; enemy_path the flight path the enemy flies when it is alive
 ; enemy_path_index the flight path is held in data tables, this is the index into those tables
 ; --------------------------------------------------
-enemy_x: .res NUMBER_OF_ENEMIES
-enemy_y: .res NUMBER_OF_ENEMIES
+enemy_x_hi: .res NUMBER_OF_ENEMIES
+enemy_x_lo: .res NUMBER_OF_ENEMIES
+enemy_y_hi: .res NUMBER_OF_ENEMIES
+enemy_y_lo: .res NUMBER_OF_ENEMIES
 enemy_type: .res NUMBER_OF_ENEMIES
 enemy_flags: .res NUMBER_OF_ENEMIES
 enemy_path: .res NUMBER_OF_ENEMIES
@@ -91,19 +93,203 @@ next:
 enemy_alive:
 
 ; --------------------------------------------------
-; Kill enemies that go off the bottom of the screen
+; Remove enemies that go off the bottom of the screen
 ; --------------------------------------------------
-  lda enemy_y, x
+  lda enemy_y_hi, x
   cmp #240
   bcc enemy_on_screen
   lda #%00000000
   sta enemy_flags, x
 enemy_on_screen:
 
+; --------------------------------------------------
+; Every 16 frames, get a new value from the enemy 
+; data tables
+; --------------------------------------------------
+  lda timer
+  and #%00001111
+  bne dont_need_new_data
+  inc enemy_path_index, x
+dont_need_new_data:
+
+; --------------------------------------------------
+; Set aliases used for updating enemy position
+; --------------------------------------------------
+  path = scratch_03
+  enemy_x_velocity = scratch_01
+  enemy_y_velocity = scratch_02
+
+; --------------------------------------------------
+; $80 is a special value in...
+; --------------------------------------------------
+  ldy enemy_path, x
+  lda enemy_path_data_x_lo_table, y
+  sta path
+  lda enemy_path_data_x_hi_table, y
+  sta path+1
+  
+  ldy enemy_path_index, x
+  lda (path), y
+  cmp #$80
+  bne dont_reset_path_index
+  lda #$00
+  sta enemy_path_index, x
+dont_reset_path_index:
+
+; --------------------------------------------------
+; Get x speed
+; --------------------------------------------------
+  ldy enemy_path, x
+  lda enemy_path_data_x_lo_table, y
+  sta path
+  lda enemy_path_data_x_hi_table, y
+  sta path+1
+  
+  ldy enemy_path_index, x
+  lda (path), y
+
+  sta enemy_x_velocity
+
+; --------------------------------------------------
+; Get y speed
+; --------------------------------------------------
+  ldy enemy_path, x
+  lda enemy_path_data_y_lo_table, y
+  sta path
+  lda enemy_path_data_y_hi_table, y
+  sta path+1
+  
+  ldy enemy_path_index, x
+  lda (path), y
+
+  sta enemy_y_velocity
+
+; --------------------------------------------------
+; Update enemy x position
+; --------------------------------------------------
+  lda enemy_x_velocity
+  bmi MoveLeft
+  
+MoveRight:
+  cmp #$20
+  bcs SubPixelRight
+
+  cmp #$00
+  beq DoNotChangeSpriteX
+
+FullPixelRight:
+  clc
+  lda enemy_x_hi, x
+  adc enemy_x_velocity
+  sta enemy_x_hi, x
+  jmp FinishedSettingXPositions
+SubPixelRight:
+  clc
+  lda enemy_x_lo, x
+  adc enemy_x_velocity
+  sta enemy_x_lo, x
+
+  lda enemy_x_hi, x
+  adc #$00
+  sta enemy_x_hi, x
+  jmp FinishedSettingXPositions
+
+; negate A (two's complement: A = -A)
+MoveLeft:
+  eor #$FF
+  clc
+  adc #$01
+  sta enemy_x_velocity
+
+  cmp #$20
+  bcs SubPixelLeft
+
+  cmp #$00
+  beq DoNotChangeSpriteX
+FullPixelLeft:
+  sec
+  lda enemy_x_hi, x
+  sbc enemy_x_velocity
+  sta enemy_x_hi, x
+  jmp FinishedSettingXPositions
+SubPixelLeft:
+  sec
+  lda enemy_x_lo, x
+  sbc enemy_x_velocity
+  sta enemy_x_lo, x
+
+  lda enemy_x_hi, x
+  sbc #$00
+  sta enemy_x_hi, x
+
+DoNotChangeSpriteX:
+
+FinishedSettingXPositions:
+
+; --------------------------------------------------
+; Update enemy y position
+; --------------------------------------------------
+  lda enemy_y_velocity
+  bmi MoveUp
+  
+MoveDown:
+  cmp #$20
+  bcs SubPixelDown
+
+  cmp #$00
+  beq FinishedSettingYPositions
+
+FullPixelDown:
+  clc
+  lda enemy_y_hi, x
+  adc enemy_y_velocity
+  sta enemy_y_hi, x
+  jmp FinishedSettingYPositions
+SubPixelDown:
+  clc
+  lda enemy_y_lo, x
+  adc enemy_y_velocity
+  sta enemy_y_lo, x
+
+  lda enemy_y_hi, x
+  adc #$00
+  sta enemy_y_hi, x
+  jmp FinishedSettingYPositions
+
+; negate A (two's complement: A = -A)
+MoveUp:
+  eor #$FF
+  clc
+  adc #$01
+  sta enemy_y_velocity
+
+  cmp #$20
+  bcs SubPixelUp
+
+  cmp #$00
+  beq FinishedSettingYPositions
+FullPixelUp:
+  sec
+  lda enemy_y_hi, x
+  sbc enemy_y_velocity
+  sta enemy_y_hi, x
+  jmp FinishedSettingYPositions
+SubPixelUp:
+  sec
+  lda enemy_y_lo, x
+  sbc enemy_y_velocity
+  sta enemy_y_lo, x
+
+  lda enemy_y_hi, x
+  sbc #$00
+  sta enemy_y_hi, x
+
+FinishedSettingYPositions:
+
 ;;;;;
   lda #$04
   sta enemy_frame_number
-  inc enemy_y, x
+  ;inc enemy_y, x
 ;;;;;
 
   jsr DrawEnemies
@@ -117,7 +303,8 @@ done:
   SAVE_REGISTERS
 
 ; --------------------------------------------------
-; point to tiles and attributes of appropriate graphics
+; point to tiles and attributes of appropriate
+; graphics
 ; --------------------------------------------------
   ldy enemy_frame_number
   lda frames_lo_table, y
@@ -130,16 +317,17 @@ done:
 ; add x and y position of current enemy to pointer
 ; --------------------------------------------------
   ldx current_enemy
-  lda enemy_y, x
+  lda enemy_y_hi, x
   sta scratch_01
-  lda enemy_x, x
+  lda enemy_x_hi, x
   sta scratch_02
   xpos = scratch_01
   ypos = scratch_02
 
 ; --------------------------------------------------
 ; need enemy_type as a multiple of 16 as the
-; enemy_move_down_frames_table is laid out in rows of 16 bytes
+; enemy_move_down_frames_table is laid out in rows
+; of 16 bytes
 ; --------------------------------------------------
   ldx current_enemy
   lda enemy_type, x
@@ -285,15 +473,28 @@ dont_reset_spawn_num:
 ; set initial x and y positions of enemy
 ; --------------------------------------------------
   lda spawn_enemy_xpos_table, y
-  sta enemy_x, x
+  sta enemy_x_hi, x
   lda spawn_enemy_ypos_table, y
-  sta enemy_y, x
+  sta enemy_y_hi, x
 
 ; --------------------------------------------------
-; set the type of enemy that will spawn
+; Set the type of enemy that will spawn
 ; --------------------------------------------------
   lda spawn_enemy_type_table, y
   sta enemy_type, x
+
+; --------------------------------------------------
+; Set the flight path for the enemy
+; --------------------------------------------------
+  lda spawn_enemy_path_table, y
+  sta enemy_path, x
+
+; --------------------------------------------------
+; Initialise the index this enemy will use as it reads
+; flight path data from its flight path table
+; --------------------------------------------------
+  lda #0
+  sta enemy_path_index, x
 
   RESTORE_REGISTERS
   rts

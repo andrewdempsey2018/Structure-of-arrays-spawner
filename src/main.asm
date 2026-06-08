@@ -18,6 +18,9 @@ scratch_02: .res 1
 scratch_03: .res 2
 scratch_03_lo = scratch_03
 scratch_03_hi = scratch_03+1
+scratch_04: .res 2
+scratch_04_lo = scratch_04
+scratch_04_hi = scratch_04+1
 
 ; --------------------------------------------------
 ; timer - counts from 30-0 in NMI. General purpose use for triggering events
@@ -48,14 +51,10 @@ timer: .res 1
   jsr read_controller
 
 ; --------------------------------------------------
-; Timer (if it is >0 then count down)
+; Timer - general purpose, used to trigger a variety 
+; of events
 ; --------------------------------------------------
-  lda timer
-  beq timer_zero
-  sec
-  sbc #1
-  sta timer
-timer_zero:
+  inc timer
 
 ; --------------------------------------------------
 ; This is the PPU clean up section, so rendering the next frame starts properly.
@@ -127,11 +126,11 @@ mainloop:
 ; When timer=0 reset timer to 30
 ; --------------------------------------------------
   lda timer
-  bne still_counting
+  and #%00011111 ; every 32 frames
+  bne :+
   dec enemy_spawn_wait
-  lda #30
-  sta timer
-still_counting:
+:
+
 
 ; --------------------------------------------------
 ; Spawing enemies
