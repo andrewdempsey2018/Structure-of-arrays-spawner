@@ -120,12 +120,15 @@ dont_need_new_data:
   enemy_y_velocity = scratch_02
 
 ; --------------------------------------------------
-; $80 is a special value in...
+; Determin if the enmy is reequired to do any special
+; actions on this frame.
+; Also check weather the index into the enemy data 
+; tables needs to be reset
 ; --------------------------------------------------
   ldy enemy_path, x
-  lda enemy_path_data_x_lo_table, y
+  lda enemy_path_data_action_lo_table, y
   sta path
-  lda enemy_path_data_x_hi_table, y
+  lda enemy_path_data_action_hi_table, y
   sta path+1
   
   ldy enemy_path_index, x
