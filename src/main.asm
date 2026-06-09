@@ -122,22 +122,20 @@ load_palettes:
 mainloop:
 
 ; --------------------------------------------------
-; Timer counts down during NMI if it is >30
-; When timer=0 reset timer to 30
-; --------------------------------------------------
-  lda timer
-  and #%00011111 ; every 32 frames
-  bne :+
-  dec enemy_spawn_wait
-:
-
-
-; --------------------------------------------------
 ; Spawing enemies
+; Read the general purpose timer. Every 32 frames decrement
+; the enemy_spawn_wait time
+;
 ; Begin spawn procedure when enemy_spawn_wait=0
 ; set x to the number of enemies to spawn
 ; set enemy_spawn_wait to the time desired to wait for next spawn
 ; --------------------------------------------------
+  lda timer
+  and #%00011111
+  bne skip_spawn_wait_decrement
+  dec enemy_spawn_wait
+skip_spawn_wait_decrement:
+
   lda enemy_spawn_wait
   bne dont_spawn
 

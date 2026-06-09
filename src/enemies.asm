@@ -461,12 +461,6 @@ dont_reset_spawn_num:
   tax
 
 ; --------------------------------------------------
-; how much time to wait before next enemy spawns
-; --------------------------------------------------
-  ;lda spawn_enemy_wait_table, y
-  ;sta enemy_spawn_wait
-
-; --------------------------------------------------
 ; set bit 7 of enemy flag - enemy is now alive
 ; --------------------------------------------------
   lda #ENEMY_ALIVE
