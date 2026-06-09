@@ -100,6 +100,10 @@ enemy_alive:
   bcc enemy_on_screen
   lda #%00000000
   sta enemy_flags, x
+  lda #$F0
+  sta enemy_y_hi, x
+  jsr DrawEnemies
+  jmp done
 enemy_on_screen:
 
 ; --------------------------------------------------
