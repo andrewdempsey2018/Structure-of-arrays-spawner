@@ -89,7 +89,7 @@ next:
   lda enemy_flags, x
   and #ENEMY_ALIVE
   bne enemy_alive
-  jmp done
+  jmp sprite_update_done
 enemy_alive:
 
 ; --------------------------------------------------
@@ -103,7 +103,7 @@ enemy_alive:
   lda #$F0
   sta enemy_y_hi, x
   jsr DrawEnemies
-  jmp done
+  jmp sprite_update_done
 enemy_on_screen:
 
 ; --------------------------------------------------
@@ -293,15 +293,24 @@ SubPixelUp:
 
 FinishedSettingYPositions:
 
+; --------------------------------------------------
+; set appropriate animation frame, comment properly...
+; --------------------------------------------------
 ;;;;;
-  lda #$04
+; 04 down
+; 05 left
+; 06 right
+  lda #$06
   sta enemy_frame_number
   ;inc enemy_y, x
 ;;;;;
 
+; --------------------------------------------------
+; Sprite attributes set, now draw
+; --------------------------------------------------
   jsr DrawEnemies
 
-done:
+sprite_update_done:
   RESTORE_REGISTERS
   rts
 .endproc
