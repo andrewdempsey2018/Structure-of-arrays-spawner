@@ -174,26 +174,25 @@ dont_reset_path_index:
 ; --------------------------------------------------
 ; Set correct animation frame
 ; --------------------------------------------------
-  lda enemy_x_velocity
-  beq zero
-  bmi left
-  jmp right
-zero:
-  lda #$04
-  sta enemy_frame_number
-  jmp done_sw
-left:
-  lda #$05
-  sta enemy_frame_number
-  jmp done_sw
-right:
-  lda #$06
-  sta enemy_frame_number
-done_sw:
+;  lda enemy_x_velocity
+;  beq zero
+;  bmi left
+;  jmp right
+;zero:
+;  lda #$04
+;  sta enemy_frame_number
+;  jmp done_sw
+;left:
+;  lda #$05
+;  sta enemy_frame_number
+;  jmp done_sw
+;right:
+;  lda #$06
+;  sta enemy_frame_number
+;done_sw:
 
-; straight 04
-; left 05
-; right 06
+  lda #$04 ; for debug reasons, hard code an animation frame number
+  sta enemy_frame_number
 
 ; --------------------------------------------------
 ; Update enemy x position
