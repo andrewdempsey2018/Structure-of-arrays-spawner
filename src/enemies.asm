@@ -89,7 +89,7 @@ next:
   lda enemy_flags, x
   and #ENEMY_ALIVE
   bne enemy_alive
-  jmp sprite_update_done
+  jmp done
 enemy_alive:
 
 ; --------------------------------------------------
@@ -103,7 +103,7 @@ enemy_alive:
   lda #$F0
   sta enemy_y_hi, x
   jsr DrawEnemies
-  jmp sprite_update_done
+  jmp done
 enemy_on_screen:
 
 ; --------------------------------------------------
@@ -124,7 +124,7 @@ dont_need_new_data:
   enemy_y_velocity = scratch_02
 
 ; --------------------------------------------------
-; Determin if the enmy is reequired to do any special
+; Determine if the enemy is required to do any special
 ; actions on this frame.
 ; Also check weather the index into the enemy data 
 ; tables needs to be reset
@@ -170,6 +170,30 @@ dont_reset_path_index:
   lda (path), y
 
   sta enemy_y_velocity
+
+; --------------------------------------------------
+; Set correct animation frame
+; --------------------------------------------------
+  lda enemy_x_velocity
+  beq zero
+  bmi left
+  jmp right
+zero:
+  lda #$04
+  sta enemy_frame_number
+  jmp done_sw
+left:
+  lda #$05
+  sta enemy_frame_number
+  jmp done_sw
+right:
+  lda #$06
+  sta enemy_frame_number
+done_sw:
+
+; straight 04
+; left 05
+; right 06
 
 ; --------------------------------------------------
 ; Update enemy x position
@@ -294,23 +318,11 @@ SubPixelUp:
 FinishedSettingYPositions:
 
 ; --------------------------------------------------
-; set appropriate animation frame, comment properly...
-; --------------------------------------------------
-;;;;;
-; 04 down
-; 05 left
-; 06 right
-  lda #$06
-  sta enemy_frame_number
-  ;inc enemy_y, x
-;;;;;
-
-; --------------------------------------------------
-; Sprite attributes set, now draw
+; Updates done, now draw
 ; --------------------------------------------------
   jsr DrawEnemies
 
-sprite_update_done:
+done:
   RESTORE_REGISTERS
   rts
 .endproc

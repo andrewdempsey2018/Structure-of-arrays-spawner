@@ -57,10 +57,12 @@ explosion_frame_3_table:
 ; conjunction with the frame number variable
 ; --------------------------------------------------
 frames_lo_table:
-  .byte <explosion_frame_0_table,<explosion_frame_1_table,<explosion_frame_2_table,<explosion_frame_3_table,<enemy_move_down_frames_table,<enemy_move_left_frames_table,<enemy_move_right_frames_table
+  .byte <explosion_frame_0_table,<explosion_frame_1_table,<explosion_frame_2_table,<explosion_frame_3_table,<enemy_move_down_frames_table,<enemy_move_left_frames_table
+  .byte <enemy_move_right_frames_table
 
 frames_hi_table:
-  .byte >explosion_frame_0_table,>explosion_frame_1_table,>explosion_frame_2_table,>explosion_frame_3_table,>enemy_move_down_frames_table,>enemy_move_left_frames_table,>enemy_move_right_frames_table
+  .byte >explosion_frame_0_table,>explosion_frame_1_table,>explosion_frame_2_table,>explosion_frame_3_table,>enemy_move_down_frames_table,>enemy_move_left_frames_table
+  .byte >enemy_move_right_frames_table
 
 ; --------------------------------------------------
 ; Enemy data tables
@@ -91,7 +93,7 @@ spawn_enemy_xpos_table:
 spawn_enemy_ypos_table:
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$05,$00
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-  .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+  .byte $00,$00,$00,$00,$00,$00,$50,$00,$00,$00,$00,$00,$00,$00,$00,$00
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -107,7 +109,7 @@ spawn_enemy_ypos_table:
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
 spawn_enemy_type_table:
-  .byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$02,$02,$02,$03,$03
+  .byte $00,$01,$02,$03,$04,$00,$00,$00,$01,$01,$01,$02,$02,$02,$03,$03
   .byte $03,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04
   .byte $04,$04,$04,$04,$04,$04,$04,$04,$04,$00,$00,$00,$00,$00,$00,$00
   .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
